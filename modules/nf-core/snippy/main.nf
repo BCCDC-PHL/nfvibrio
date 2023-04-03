@@ -21,12 +21,12 @@ process SNIPPY {
     args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo "${params.reference_fa}"
+    echo "${params.reference_fasta}"
     snippy \
     --cpus ${task.cpus} \
     --report \
     --outdir ${prefix} \
-    --reference ${params.reference_fa} \
+    --reference ${params.reference_fasta} \
     --R1 ${fastqs[0]} \
     --R2 ${fastqs[1]} 
 

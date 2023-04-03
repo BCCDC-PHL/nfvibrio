@@ -28,7 +28,7 @@ process GUBBINS {
         echo -e "\$(basename \$file | cut -d. -f1)\t\$file"
     done > fasta_files.fofn
 
-    generate_ska_alignment.py --threads ${task.cpus} --reference ${params.reference_fa} --fasta fasta_files.fofn --out ${params.run_name}_align.fa
+    generate_ska_alignment.py --threads ${task.cpus} --reference ${params.reference_fasta} --fasta fasta_files.fofn --out ${params.run_name}_align.fa
 
     run_gubbins.py --threads ${task.cpus} --prefix gubbins ${params.run_name}_align.fa
 
