@@ -51,7 +51,13 @@ include { FASTQC_FASTP } from '../subworkflows/nf-core/fastqc_fastp'
 // MODULE: Installed directly from nf-core/modules
 //
 include { CAT_FASTQ                   } from '../modules/nf-core/cat/fastq/main'
+include { TRIMMOMATIC                 } from '../modules/nf-core/trimmomatic/main'
+include { CONFINDR                    } from '../modules/nf-core/confindr/main'
 include { SHOVILL                     } from '../modules/nf-core/shovill/main'
+include { SNIPPY                      } from '../modules/nf-core/snippy/main'
+include { ABRICATE                    } from '../modules/nf-core/abricate/main'
+include { ROARY                       } from '../modules/nf-core/roary/main'
+include { GUBBINS                     } from '../modules/nf-core/gubbins/main'
 include { QUAST                       } from '../modules/nf-core/quast/main'
 include { PROKKA                      } from '../modules/nf-core/prokka/main'
 include { AMRFINDERPLUS_UPDATE        } from '../modules/nf-core/amrfinderplus/update/main'
@@ -116,29 +122,42 @@ workflow NFVIBRIO {
     .set { ch_cat_fastq }
     ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
 
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Trimmomatic
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    
+    TRIMMOMATIC (
+        ch_cat_fastq
+    )
+    
+    ch_versions = ch_versions.mix(TRIMMOMATIC.out.versions)
+
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         SUBWORKFLOW: Read QC and trim adapters
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
-    
+    ch_trimmed_reads = TRIMMOMATIC.out.reads
     FASTQC_FASTP (
-        ch_cat_fastq,
+        ch_trimmed_reads,
         params.save_trimmed_fail,
         false
       )
-    ch_variants_fastq = FASTQC_FASTP.out.reads
+    ch_filter_fastq = FASTQC_FASTP.out.reads
     ch_versions = ch_versions.mix(FASTQC_FASTP.out.versions)
 
     /*
     //
     // MODULE: Run Kraken2 for removal of host reads
     //
-    ch_assembly_fastq  = ch_variants_fastq
+    ch_assembly_fastq  = ch_filter_fastq
     ch_kraken2_multiqc = Channel.empty()
     if (!params.skip_kraken2) {
         KRAKEN2_KRAKEN2 (
-            ch_variants_fastq,
+            ch_filter_fastq,
             PREPARE_GENOME.out.kraken2_db,
             params.kraken2_variants_host_filter || params.kraken2_assembly_host_filter,
             params.kraken2_variants_host_filter || params.kraken2_assembly_host_filter
@@ -147,7 +166,7 @@ workflow NFVIBRIO {
         ch_versions        = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions.first().ifEmpty(null))
 
         if (params.kraken2_variants_host_filter) {
-            ch_variants_fastq = KRAKEN2_KRAKEN2.out.unclassified_reads_fastq
+            ch_filter_fastq = KRAKEN2_KRAKEN2.out.unclassified_reads_fastq
         }
 
         if (params.kraken2_assembly_host_filter) {
@@ -155,6 +174,22 @@ workflow NFVIBRIO {
         }
     }
     */
+    
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Assembling reads
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    
+    ch_confindr_fastq  = FASTQC_FASTP.out.reads
+
+    CONFINDR (
+        ch_confindr_fastq.collect{it[1]}
+    )
+    
+    ch_versions            = ch_versions.mix(CONFINDR.out.versions)
+
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -176,6 +211,18 @@ workflow NFVIBRIO {
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Abricate for virulence factors
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    ch_abricate_contigs       = SHOVILL.out.contigs
+    ABRICATE(
+        ch_abricate_contigs
+    )
+    ch_versions     = ch_versions.mix(ABRICATE.out.versions)
+
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         MODULE: Assembly QC 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
@@ -193,6 +240,17 @@ workflow NFVIBRIO {
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Abricate for virulence factors
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    SNIPPY(
+        ch_filter_fastq
+    )
+    ch_versions     = ch_versions.mix(SNIPPY.out.versions)
+
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         MODULE: Annotation
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
@@ -203,6 +261,31 @@ workflow NFVIBRIO {
         []
     )
     ch_versions             = ch_versions.mix(PROKKA.out.versions)
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Roary pan-genome generation 
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    ch_roary_gffs         = PROKKA.out.gff.collect{it[1]}
+    ROARY(
+        ch_roary_gffs
+    )
+    ch_versions             = ch_versions.mix(ROARY.out.versions)
+
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Gubbins recombination detection
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    ch_gubbins_contigs         = SHOVILL.out.contigs.collect{it[1]}
+    GUBBINS(
+        ch_gubbins_contigs
+    )
+    ch_versions             = ch_versions.mix(GUBBINS.out.versions)
+
+
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
