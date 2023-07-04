@@ -7,7 +7,7 @@ os.chdir(os.path.dirname(__file__))
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--notebook', help='Name of the Jupyter notebook to run')
+    parser.add_argument('-n', '--notebook', required=True, help='Name of the Jupyter notebook to run')
     parser.add_argument('-o', '--outname', help='Name of the output HTML report')
     parser.add_argument('-f', '--format', default='html', help='Name of the output HTML report')
     parser.add_argument('remainder', nargs=argparse.REMAINDER, help='All arguments to be passed to the Jupyter notebook')
