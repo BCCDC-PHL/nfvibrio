@@ -12,6 +12,7 @@ process SNIPPY {
 
     output:
     tuple val(meta), path("${prefix}")         ,  emit: main
+    path("${prefix}*txt")                       , emit: summary
     path "versions.yml"                       , emit: versions
     
     when:
