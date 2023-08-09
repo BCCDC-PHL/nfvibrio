@@ -355,6 +355,11 @@ workflow NFVIBRIO {
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.log)
+    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json)
+    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN.out.report.map{it -> it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(SNIPPY.out.summary)
+    ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.tsv)
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
 
     MULTIQC (
