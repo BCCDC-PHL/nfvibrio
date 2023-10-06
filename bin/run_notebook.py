@@ -1,9 +1,8 @@
 import sys,os
 import argparse
 
-CONFIG_PATH = '.ipynb.config'
 
-os.chdir(os.path.dirname(__file__))
+CONFIG_PATH = os.path.dirname(__file__) + '/../assets/.ipynb.config'
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -18,9 +17,11 @@ def main():
 
     args = get_args()
 
+    args.remainder = [x if x.startswith("-") else os.path.abspath(x) for x in args.remainder]
+
     with open(CONFIG_PATH,'w') as f:
         f.write(' '.join([__file__] + args.remainder)+'\n')
-    output = f'--output {args.outname}' if args.outname else ''
+    output = f'--output {os.getcwd()}/{args.outname}' if args.outname else ''
     os.system(f'jupyter nbconvert --execute --no-input --to {args.format} {output} {args.notebook}')
     return None
 
