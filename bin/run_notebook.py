@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 import sys,os
 import argparse
-
 
 CONFIG_PATH = os.path.dirname(__file__) + '/../assets/.ipynb.config'
 
