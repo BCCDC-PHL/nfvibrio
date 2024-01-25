@@ -221,6 +221,15 @@ workflow NFVIBRIO {
     )
     ch_versions     = ch_versions.mix(ABRICATE.out.versions)
 
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        MODULE: Custom plotting module to generate HTML heatmap
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    */
+    ch_abricate_vfs           = ABRICATE.out.vf.collect{it[1]}
+    PLOT_VF_HEATMAP(
+        ch_abricate_vfs
+    )
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
