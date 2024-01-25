@@ -51,17 +51,18 @@ include { FASTQC_FASTP } from '../subworkflows/nf-core/fastqc_fastp'
 // MODULE: Installed directly from nf-core/modules
 //
 include { CAT_FASTQ                   } from '../modules/nf-core/cat/fastq/main'
-include { TRIMMOMATIC                 } from '../modules/nf-core/trimmomatic/main'
-include { CONFINDR                    } from '../modules/nf-core/confindr/main'
+include { TRIMMOMATIC                 } from '../modules/local/trimmomatic/main'
+include { CONFINDR                    } from '../modules/local/confindr/main'
 include { SHOVILL                     } from '../modules/nf-core/shovill/main'
-include { SNIPPY                      } from '../modules/nf-core/snippy/main'
-include { ABRICATE                    } from '../modules/nf-core/abricate/main'
-include { ROARY                       } from '../modules/nf-core/roary/main'
+include { SNIPPY                      } from '../modules/local/snippy/main'
+include { ABRICATE                    } from '../modules/local/abricate/main'
+include { ROARY                       } from '../modules/local/roary_custom/main'
 include { GUBBINS                     } from '../modules/nf-core/gubbins/main'
 include { QUAST                       } from '../modules/nf-core/quast/main'
 include { PROKKA                      } from '../modules/nf-core/prokka/main'
 include { AMRFINDERPLUS_UPDATE        } from '../modules/nf-core/amrfinderplus/update/main'
 include { AMRFINDERPLUS_RUN           } from '../modules/nf-core/amrfinderplus/run/main'
+include { PLOT_VF_HEATMAP             } from '../modules/local/plot/vf_heatmap/main'
 include { MLST                        } from '../modules/nf-core/mlst/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
@@ -243,8 +244,9 @@ workflow NFVIBRIO {
         MODULE: Abricate for virulence factors
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
+    ch_snippy_contigs       = SHOVILL.out.contigs
     SNIPPY(
-        ch_filter_fastq
+        ch_snippy_contigs
     )
     ch_versions     = ch_versions.mix(SNIPPY.out.versions)
 
@@ -356,8 +358,8 @@ workflow NFVIBRIO {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.log)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json)
-    ch_multiqc_files = ch_multiqc_files.mix(KRAKEN.out.report.map{it -> it[1]})
+    // ch_multiqc_files = ch_multiqc_files.mix(FASTP.out.json)
+    // ch_multiqc_files = ch_multiqc_files.mix(KRAKEN.out.report.map{it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(SNIPPY.out.summary)
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.tsv)
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
