@@ -1,5 +1,6 @@
 process GUBBINS {
     tag "MAIN_GUBBINS"
+
     label 'process_high'
 
     conda (params.enable_conda ? 'gubbins' : null)
@@ -17,12 +18,13 @@ process GUBBINS {
     path('*statistics.csv')                ,  emit: stats
     path('*distribution.vcf')              ,  emit: vcf
     path('*.log')                          ,  emit: log
-    path "versions.yml"                    ,  emit: versions
+    path("versions.yml")                  ,  emit: versions
     
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    def args = task.ext.args ?: ''
     """
     for file in *fa; do 
         echo -e "\$(basename \$file | cut -d. -f1)\t\$file"
@@ -30,7 +32,11 @@ process GUBBINS {
 
     generate_ska_alignment.py --threads ${task.cpus} --reference ${params.reference_fasta} --fasta fasta_files.fofn --out ${params.run_name}_align.fa
 
-    run_gubbins.py --threads ${task.cpus} --prefix gubbins ${params.run_name}_align.fa
+    run_gubbins.py \\
+    --threads ${task.cpus} \\
+    --prefix gubbins \\
+    $args \\
+    ${params.run_name}_align.fa
 
     mkdir -p gbb_output
     cp gubbins* gbb_output
