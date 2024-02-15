@@ -17,29 +17,29 @@ def init_parser():
 
 def rename(path, execute=False):
 	os.chdir(path)
-	
 	if execute:
 		print("Renaming files...")
 
-	folder_names = glob('*')
+	folder_names = glob( '*')
 
-	for filepath in glob("*/*.gz"):
+	for filepath in glob( "*/*.gz"):
 		fields = filepath.split("_")
 		folder_name, file_name = fields[0].split("/")
 		
-		newname = "_".join([folder_name, *fields[1:]])
-		#print("Starting to rename file")
-		print(filepath, " --> ", newname)
+		if not file_name.startswith(folder_name):
 
 
-		if execute:
-			os.rename(filepath, newname)
+			newname = "_".join([folder_name, *fields[1:]])
+			#print("Starting to rename file")
+			print(filepath, " --> ", os.path.join(os.path.dirname(filepath), newname))
+
+
+			if execute:
+				os.rename(filepath, os.path.join(os.path.dirname(filepath), newname))
 
 	if execute:
-		print("Renamed all files. \nRemoving directories...")
+		print("Renamed all files.")
 
-		for folder in folder_names:
-			os.rmdir(folder)
 		print("Complete.")
 
 	else:
