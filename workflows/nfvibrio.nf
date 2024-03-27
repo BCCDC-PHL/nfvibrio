@@ -168,10 +168,10 @@ workflow NFVIBRIO {
     ch_kraken2_multiqc = Channel.empty()
     
     if (params.run_kraken2) {
-        ch_kraken2_database = Channel.fromPath(params.kraken2_database)
+        ch_kraken2_db = Channel.fromPath(params.kraken2_db)
         KRAKEN2_KRAKEN2 (
             ch_filter_fastq,
-            ch_kraken2_database,
+            ch_kraken2_db,
             false,  
             true
     )

@@ -29,7 +29,8 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open"
+                    "fa_icon": "fas fa-folder-open",
+                    "default": "/sharehome/john.palmer/git/upcoastv-nf/results-$run_name"
                 },
                 "email": {
                     "type": "string",
@@ -55,7 +56,8 @@
                     "type": "string",
                     "description": "Name of iGenomes reference.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details.",
+                    "default": "VP01"
                 },
                 "fasta": {
                     "type": "string",
@@ -65,6 +67,13 @@
                     "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
+                },
+                "gff": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "description": "Path to GFF annotation file",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. "
                 },
                 "igenomes_base": {
                     "type": "string",
@@ -279,6 +288,38 @@
                     "description": "Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter.",
                     "hidden": true,
                     "fa_icon": "fas fa-bacon"
+                },
+                "run_kraken2": {
+                    "type": "boolean",
+                    "description": "Run kraken2 metagenomic classifier on raw FASTQ reads."
+                },
+                "run_confindr": {
+                    "type": "boolean",
+                    "description": "Run confindr for contamination detection."
+                },
+                "adapter_path": {
+                    "type": "string",
+                    "description": "Directory to adapters FASTA file",
+                    "default": "${projectDir}/assets/adapters.fa"
+                },
+                "reference_fasta": {
+                    "type": "string",
+                    "description": "Directory to reference FASTA file",
+                    "default": "${projectDir}/assets/GCF_000196095.1_ASM19609v1_genomic.fna"
+                },
+                "reference_gff": {
+                    "type": "string",
+                    "description": "Directory to reference GFF3 annotation file.",
+                    "default": "${projectDir}/assets/GCF_000196095.1_ASM19609v1_genomic.gff"
+                },
+                "confindr_db": {
+                    "type": "string",
+                    "description": "Directory where confindr database can be found"
+                },
+                "kraken2_db": {
+                    "type": "string",
+                    "description": "Directory where kraken2 database can be found",
+                    "default": "/data/ref_databases/kraken2/latest_standard"
                 }
             }
         }
@@ -302,12 +343,19 @@
     ],
     "properties": {
         "save_trimmed_fail": {
-            "type": "string",
-            "default": "false"
+            "type": "string"
         },
         "assembler": {
             "type": "string",
-            "default": null
+            "default": "spades"
+        },
+        "schema_ignore_params": {
+            "type": "string",
+            "default": "genomes"
+        },
+        "kraken2_confidence": {
+            "type": "number",
+            "default": 0.1
         }
     }
 }
