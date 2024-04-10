@@ -15,21 +15,18 @@ nfvibrio)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1
 
 <!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
 
-**nf-core/nfvibrio** is a bioinformatics best-practice analysis pipeline for _Vibrio parahaemolyticus_ analysis. This workflow is under active development and updates. If you are using it (thank you!) remember to keep your fork updated by regularly syncing it.
+**nfvibrio** is a bioinformatics pipeline for the analysis _Vibrio parahaemolyticus_. 
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. <!-- Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community! -->
-
-<!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable 
-
-On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources.The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/nfvibrio/results).
--->
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a highly portable manner. 
+It uses Docker/Singularity containers making installation trivial and results highly reproducible. 
+The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. <!-- Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community! -->
 
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Performing read QC ([`FASTP`](https://github.com/OpenGene/fastp))
+1. Read QC Metrics ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+2. Read QC Filtering and Trimming ([`FASTP`](https://github.com/OpenGene/fastp), [`TRIMMOMATIC`](https://github.com/usadellab/Trimmomatic))
 3. Assemble quality controlled reads ([`SHOVILL`](https://github.com/tseemann/shovill))
    1. Estimating genome size by counting unqiue kmer-mers ([`KMC`](https://github.com/refresh-bio/KMC))
    2. Correct sequencing errors in reads ([`Lighter`](https://github.com/mourisl/Lighter))
@@ -38,9 +35,12 @@ On release, automated continuous integration tests run the pipeline on a full-si
    5. Correct minor assembly errors by mapping reads back to contigs ([`PILON`](https://github.com/broadinstitute/pilon))
 4. Perform assembly QC ([`QUAST`](https://github.com/ablab/quast))
 5. Annotate assembled contigs ([`PROKKA`](https://github.com/tseemann/prokka))
-6. Find antimicrobial resistance genes and point mutations in assembled contigs ([`AMRFINDERPLUS`](https://github.com/ncbi/amr))
-7. Scan contig files against traditional PubMLST typing schemes ([`MLST`](https://github.com/tseemann/mlst))
-8. Present QC for raw reads ([`MULTIQC`](http://multiqc.info/))
+6. Pan-genome analysis ([`ROARY`](https://github.com/sanger-pathogens/Roary))
+7. Virulence factor screening ([`ABRICATE`](https://github.com/tseemann/abricate))
+8. Find antimicrobial resistance genes and point mutations in assembled contigs ([`AMRFINDERPLUS`](https://github.com/ncbi/amr))
+9. Scan contig files against traditional PubMLST typing schemes ([`MLST`](https://github.com/tseemann/mlst))
+10. Variant calling and consensus sequence generation ([`SNIPPY`](https://github.com/tseemann/snippy))
+11. Present QC for raw reads ([`MULTIQC`](http://multiqc.info/))
 
 
 ## Quick Start
@@ -69,12 +69,9 @@ Currently this README serves as the only documentation for this workflow. More d
 
 ## Credits
 
-nf-core/nfvibrio was originally written by Muhammad Zohaib Anwar under the supervision of William Hsiao at the [Centre for Infectious Disease Genomics and One Health](http://www.cidgoh.ca/) at [Simon Fraser University](http://www.sfu.ca/). 
+The majority of the **nfvibrio** pipeline in its current state was developed by John Palmer for routine analysis of _Vibrio parahaemolyticus_ at the BCCDC and abroad. 
+The original foundations of this pipeline were developed by Muhammad Zohaib Anwar under the supervision of William Hsiao at the [Centre for Infectious Disease Genomics and One Health](http://www.cidgoh.ca/) at [Simon Fraser University](http://www.sfu.ca/). 
 
-
-<!--We thank the following people for their extensive assistance in the development of this pipeline:-->
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 
