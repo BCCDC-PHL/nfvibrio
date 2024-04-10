@@ -370,6 +370,7 @@ workflow NFVIBRIO {
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(TRIMMOMATIC.out.log.map{ it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.trim_json.map{ it -> it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_TRIM_FASTP_FASTQC.out.fastqc_trim_zip.map{ it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(ch_kraken2_multiqc)
     ch_multiqc_files = ch_multiqc_files.mix(SNIPPY_RUN.out.txt.map{ it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.tsv.map{ it -> it[1]})
