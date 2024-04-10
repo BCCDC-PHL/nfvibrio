@@ -15,7 +15,7 @@ nfvibrio)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1
 
 <!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
 
-**snfvibrio** is a bioinformatics pipeline for the analysis _Vibrio parahaemolyticus_. 
+**nfvibrio** is a bioinformatics pipeline for the analysis _Vibrio parahaemolyticus_. 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a highly portable manner. 
 It uses Docker/Singularity containers making installation trivial and results highly reproducible. 
