@@ -9,3 +9,4 @@ testing*
 null/
 .vscode*
 assets/.ipynb.config
+conf/custom.config

@@ -373,6 +373,7 @@ workflow NFVIBRIO {
     ch_multiqc_files = ch_multiqc_files.mix(ch_kraken2_multiqc)
     ch_multiqc_files = ch_multiqc_files.mix(SNIPPY_RUN.out.txt.map{ it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(QUAST.out.tsv.map{ it -> it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(PROKKA.out.txt.map{ it -> it[1]})
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     MULTIQC (
         ch_multiqc_files.collect(),
