@@ -69,8 +69,8 @@ Currently this README serves as the only documentation for this workflow. More d
 
 ## Credits
 
-The majority of the **nfvibrio** pipeline in its current state was developed by John Palmer for routine analysis of _Vibrio parahaemolyticus_ at the BCCDC and abroad. 
-Special thanks to colleagues and supervisors who made this work possible at BC Centre for Disease Control (James Zlosnik, Linda Hoang, Tess MacIntyre). 
+The majority of the **nfvibrio** pipeline in its current state was developed by John Palmer for routine analysis of _Vibrio parahaemolyticus_ at the [BC Centre for Disease Control](http://www.bccdc.ca/) (BCCDC) and abroad. 
+Special thanks to colleagues and supervisors who made this work possible at BCCDC (James Zlosnik, Linda Hoang, Tess MacIntyre). 
 The original foundations of this pipeline were developed by Muhammad Zohaib Anwar under the supervision of William Hsiao at the [Centre for Infectious Disease Genomics and One Health](http://www.cidgoh.ca/) at [Simon Fraser University](http://www.sfu.ca/). 
 
 
