@@ -64,12 +64,13 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 
 
 ## Documentation
-Currently this README serves as the only documentation for this workflow. More detailed documentation is under development. If you have specific questions, open a issue or connect at [mzanwar@sfu.ca](mailto:mzanwar@sfu.ca). 
+Currently this README serves as the only documentation for this workflow. More detailed documentation is under development. If you have questions, open a issue or connect at [john.palmer@bccdc.ca](mailto:john.palmer@bccdc.ca). 
 <!-- The nf-core/nfvibrio pipeline comes with documentation about the pipeline [usage](https://nf-co.re/nfvibrio/usage), [parameters](https://nf-co.re/nfvibrio/parameters) and [output](https://nf-co.re/nfvibrio/output).-->
 
 ## Credits
 
 The majority of the **nfvibrio** pipeline in its current state was developed by John Palmer for routine analysis of _Vibrio parahaemolyticus_ at the BCCDC and abroad. 
+Special thanks to colleagues and supervisors who made this work possible at BC Centre for Disease Control (James Zlosnik, Linda Hoang, Tess MacIntyre). 
 The original foundations of this pipeline were developed by Muhammad Zohaib Anwar under the supervision of William Hsiao at the [Centre for Infectious Disease Genomics and One Health](http://www.cidgoh.ca/) at [Simon Fraser University](http://www.sfu.ca/). 
 
 
