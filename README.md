@@ -24,24 +24,49 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
-1. Read QC Metrics ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Read QC Filtering and Trimming ([`FASTP`](https://github.com/OpenGene/fastp), [`TRIMMOMATIC`](https://github.com/usadellab/Trimmomatic))
-3. Assemble quality controlled reads ([`SHOVILL`](https://github.com/tseemann/shovill))
+1. Read QC Filtering and Trimming ([`FASTP`](https://github.com/OpenGene/fastp), [`TRIMMOMATIC`](https://github.com/usadellab/Trimmomatic))
+2. Metagenomic read classification (_optional_, [`KRAKEN2`](https://github.com/DerrickWood/kraken2))
+3. Contamination detection (_optional_, [`CONFINDR`](https://github.com/OLC-Bioinformatics/ConFindr))
+4. Read QC Metrics ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+5. Assemble quality controlled reads ([`SHOVILL`](https://github.com/tseemann/shovill))
    1. Estimating genome size by counting unqiue kmer-mers ([`KMC`](https://github.com/refresh-bio/KMC))
    2. Correct sequencing errors in reads ([`Lighter`](https://github.com/mourisl/Lighter))
    3. Merge paired-end reads ([`FLASH`](https://ccb.jhu.edu/software/FLASH/))
    4. Assemble with ([`SPAdes`](https://github.com/ablab/spades))/([`SKESA`](https://github.com/ncbi/SKESA))/([`Megahit`](https://github.com/voutcn/megahit)) with modified kmer range
-   5. Correct minor assembly errors by mapping reads back to contigs ([`PILON`](https://github.com/broadinstitute/pilon))
-4. Perform assembly QC ([`QUAST`](https://github.com/ablab/quast))
-5. Annotate assembled contigs ([`PROKKA`](https://github.com/tseemann/prokka))
-6. Pan-genome analysis ([`ROARY`](https://github.com/sanger-pathogens/Roary))
-7. Virulence factor screening ([`ABRICATE`](https://github.com/tseemann/abricate))
-8. Find antimicrobial resistance genes and point mutations in assembled contigs ([`AMRFINDERPLUS`](https://github.com/ncbi/amr))
-9. Scan contig files against traditional PubMLST typing schemes ([`MLST`](https://github.com/tseemann/mlst))
-10. Variant calling and consensus sequence generation ([`SNIPPY`](https://github.com/tseemann/snippy))
-11. Present QC for raw reads ([`MULTIQC`](http://multiqc.info/))
+   5.  Correct minor assembly errors by mapping reads back to contigs ([`PILON`](https://github.com/broadinstitute/pilon))
+6. Perform assembly QC ([`QUAST`](https://github.com/ablab/quast))
+7. Annotate assembled contigs ([`PROKKA`](https://github.com/tseemann/prokka))
+8. Pan-genome analysis ([`ROARY`](https://github.com/sanger-pathogens/Roary))
+9. Virulence factor screening ([`ABRICATE`](https://github.com/tseemann/abricate))
+   1. Custom heatmap plot 
+10. Find antimicrobial resistance genes and point mutations in assembled contigs ([`AMRFINDERPLUS`](https://github.com/ncbi/amr))
+11. Scan contig files against traditional PubMLST typing schemes ([`MLST`](https://github.com/tseemann/mlst))
+12. Variant calling and consensus sequence generation ([`SNIPPY`](https://github.com/tseemann/snippy))
+13. General QC report generation ([`MULTIQC`](http://multiqc.info/))
 
+```mermaid
+graph TD
+A[FASTQ Samplesheet]  --> AA(Input Check)
+AA --> AAA(Trimmomatic \n- Adapter Removal)
+AA --> AB(ConFindr \n- Contamination QC)
+AAA --> AC(Fastp \n- Trim & Filter)
+AC --> ACB(Kraken2 \n- Metagenomic Classifier)
+AC --> ACA(FASTQC \n- QC Checks)
+AC --> B(Shovill \n- De-novo Assembly)
+B --> BA(Abricate \n- Virulence Factors)
+BA --> BAA(Custom Heatmap Plot)
+B --> BB(AMRFinderPlus \n- AMR Gene Detection)
+B --> BC(MLST \n- Sequence Typing)
+B --> BD(Quast \n- Assembly QC)
+B --> BE(Prokka \n- Genome Annotation)
+BE --> BEA(Roary \n- PanGenome Analysis)
+B --> BF(Snippy \n- Variant Calls & Consensus)
+AAA --> Z(MultiQC \n- QC Report)
+AC --> Z
+BF --> Z
+BD --> Z
+BE --> Z
+```
 
 ## Quick Start
 
@@ -49,11 +74,17 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 
 2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) (you can follow [this tutorial](https://singularity-tutorial.github.io/01-installation/)), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(you can use [`Conda`](https://conda.io/miniconda.html) both to install Nextflow itself and also to manage software within pipelines. Please only use it within pipelines as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_.
 
-3. Download the pipeline and test it on a minimal dataset with a single command:
+3. Given a directory of FASTQ files, use the `extra/make_sample_sheet.sh` script to automatically generate a corresponding samplesheet.
 
-   ```bash
-   nextflow run nfvibrio/main.nf -profile <conda,singularity,YOURPROFILE>  --genome "VP01" --input sample_sheet.csv --outdir <OUTDIR> --assembler <skesa,megahit,spades>
-   ```
+```bash
+bash make_sample_sheet.sh [FASTQ_DIRECTORY] [SAMPLESHEET_FILENAME]
+```
+
+5. Download the pipeline and test it on a minimal dataset with a single command:
+
+```bash
+nextflow run nfvibrio/main.nf -profile <conda,singularity,YOURPROFILE>  --input sample_sheet.csv --outdir <OUTDIR> 
+```
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
 
